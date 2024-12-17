@@ -2,20 +2,20 @@
 
 import pathlib
 import pytest
-import day02 as aoc
+import solution as aoc
 
-PUZZLE_DIR = pathlib.Path(__file__).parent.parent / "data"
+PUZZLE_DIR = pathlib.Path(__file__).parent
 
 
 @pytest.fixture
-def example1():
-    puzzle_input = (PUZZLE_DIR / "example02.txt").read_text().strip()
+def example():
+    puzzle_input = (PUZZLE_DIR / "example.txt").read_text().strip()
     return aoc.parse(puzzle_input)
 
 
-def test_parse_example1(example1):
+def test_parse_example1(example):
     """Test that input is parsed properly."""
-    assert example1 == [
+    assert example == [
         [7, 6, 4, 2, 1],
         [1, 2, 7, 8, 9],
         [9, 7, 6, 2, 1],
@@ -25,11 +25,11 @@ def test_parse_example1(example1):
     ]
 
 
-def test_part1_example1(example1):
+def test_part1_example1(example):
     """Test part 1 on example input."""
-    assert aoc.part1(example1) == 2
+    assert aoc.part1(example) == 2
 
 
-def test_part2_example1(example1):
+def test_part2_example1(example):
     """Test part 2 on example input."""
-    assert aoc.part2(example1) == 4
+    assert aoc.part2(example) == 4

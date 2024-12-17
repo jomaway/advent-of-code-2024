@@ -1,4 +1,4 @@
-# template.py
+# solution for day
 
 from pathlib import Path
 import sys
