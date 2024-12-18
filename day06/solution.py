@@ -2,23 +2,19 @@
 
 from pathlib import Path
 import sys
-import numpy as np
 from enum import Enum
 
 
+# Use complex numbers to represent positions
 class Direction(Enum):
-    NORTH = 0
-    EAST = 1
-    SOUTH = 2
-    WEST = 3
+    NORTH = -1
+    EAST = +1j
+    SOUTH = +1
+    WEST = -1j
 
-
-DIRECTION_DELTAS = {
-    Direction.NORTH: (-1, 0),
-    Direction.EAST: (0, 1),
-    Direction.SOUTH: (1, 0),
-    Direction.WEST: (0, -1),
-}
+    def turn_right(self):
+        # rotate 90 degree clockwise
+        return Direction(self.value * -1j)
 
 
 class Guard:
@@ -26,95 +22,69 @@ class Guard:
         self.direction = Direction.NORTH
         self.position = pos
         self.path = set()
-        self.path.add((pos, self.direction))
-        self.escaped = False
-        self.stuck_in_loop = False
 
     def turn_right(self):
-        self.direction = Direction((self.direction.value + 1) % 4)
+        self.direction = self.direction.turn_right()
 
     def move_forward(self):
         self.position = self.get_next_pos()
-        if (self.position, self.direction) in self.path:
-            self.stuck_in_loop = True
-        else:
-            self.path.add((self.position, self.direction))
 
     def get_next_pos(self):
-        delta = DIRECTION_DELTAS[self.direction]
-        return (self.position[0] + delta[0], self.position[1] + delta[1])
-
-    def is_next_field_free(self, map):
-        row, col = self.get_next_pos()
-        # check if next field is outside of map
-        n_rows, n_cols = map.shape
-        if not (0 <= row < n_rows and 0 <= col < n_cols):
-            self.escaped = True
-            return False  # return false so that guard is not moving anymore.
-        # return not map[row][col] == "#"
-        return map[row][col] not in ("#", "O")
+        return self.position + self.direction.value
 
     def move(self, map):
-        if self.is_next_field_free(map):
-            self.move_forward()
-        else:
-            self.turn_right()
-
-    def is_escaped(self):
-        return self.escaped
+        while self.position in map and not self.is_stuck_in_loop():
+            self.path.add((self.position, self.direction))
+            pos = self.get_next_pos()
+            # if next field is free
+            if map.get(pos) in ("#", "O"):
+                self.turn_right()
+            else:
+                self.move_forward()
 
     def is_stuck_in_loop(self):
-        return self.stuck_in_loop
+        return (self.position, self.direction) in self.path
 
     def __str__(self):
         return f"{self.position} - {self.direction} #({self.path})"
 
 
 def parse(puzzle_input):
-    """Parse input."""
+    """Parse input.
+    Returns a dict with the position as complex number as key and the value as char.
+    """
     rows = puzzle_input.split("\n")
-    return np.array([list(row) for row in rows])
+    map = {i + j * 1j: char for i, row in enumerate(rows) for j, char in enumerate(row)}
+    return map
 
 
 def part1(data):
     """Solve part 1."""
     # find position of the guard
-    start = tuple(int(val[0]) for val in np.where("^" == data))  # (row,col)
+    start = min([key for key, value in data.items() if value == "^"])
     # current direction
     guard = Guard(start)
-    while not guard.is_escaped():
-        guard.move(data)
+    guard.move(data)
 
     return len(set([pos for (pos, _) in guard.path]))
 
 
 def part2(data):
     """Solve part 2."""
-    start = tuple(int(val[0]) for val in np.where("^" == data))  # (row,col)
+    start = min([key for key, value in data.items() if value == "^"])
     result = 0
 
-    # get path from guard.
+    # walk the path once
     guard = Guard(start)
-    while not guard.is_escaped():
-        guard.move(data)
+    guard.move(data)
 
-    for pos in set([pos for (pos, _) in guard.path]):
-        result += process_guard_path(start, pos[0], pos[1], data)
+    for pos in {pos for (pos, _) in guard.path}:
+        guard = Guard(start)
+        guard.move(data | {pos: "#"})
+        if guard.is_stuck_in_loop():
+            result += 1
 
     return result
-
-
-def process_guard_path(start, ri, ci, data):
-    map = data.copy()
-    map[ri][ci] = "O"
-
-    guard = Guard(start)
-    while True:
-        guard.move(map)
-        if guard.is_stuck_in_loop():
-            return 1
-        if guard.is_escaped():
-            return 0
 
 
 def solve(puzzle_input):
