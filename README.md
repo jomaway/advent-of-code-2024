@@ -2,8 +2,21 @@
 
 2024 advent of code in python.
 
+Scafold template with:
+
+```bash
+just scafold <DAY>
+```
+
 Run solutions with:
 
+```bash
+just run input <DAY>
 ```
-uv run day01.py data/input01.txt
+
+
+Run tests with:
+
+```bash
+just test <DAY>
 ```
