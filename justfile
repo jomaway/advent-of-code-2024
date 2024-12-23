@@ -9,7 +9,7 @@ default:
     just --list
 
 # run solution for a given day - file can be input | example
-run file day:
+run day file:
     #!/usr/bin/env bash
     set -euo pipefail # Exit on error
     DAY=$(printf "%02d" {{day}})
