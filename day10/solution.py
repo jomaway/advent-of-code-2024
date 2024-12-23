@@ -31,15 +31,20 @@ def build_graph(map):
 
     return graph 
 
-def find_num_trails(map, graph, start):
-    trails = set()
-
+def find_num_trails(map, graph, start, is_part2=False):
+    if is_part2:
+        trails = []
+    else:
+        trails = set()
+    
     def dfs(node, path):
         path.append(node)
 
         if map[node] == 9:
-            trails.add(node)
-            # print(f"P: {path}")
+            if is_part2:
+                trails.append(node)
+            else:
+                trails.add(node)    
         else:
             for next in graph[node]:
                 if next not in path:
@@ -51,9 +56,11 @@ def find_num_trails(map, graph, start):
     return len(trails)
          
 
-def part2(data):
+def part2(map):
     """Solve part 2."""
-    pass
+    trailheads = [key for key, value in map.items() if value == 0]
+    graph = build_graph(map)
+    return sum(find_num_trails(map, graph,trailhead, True) for trailhead in trailheads)
 
 
 def solve(puzzle_input):
