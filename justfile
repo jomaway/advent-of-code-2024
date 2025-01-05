@@ -42,3 +42,6 @@ scafold day:
     else
         echo "Day {{day}} already exist."
     fi
+
+edit day:
+    ${EDITOR} day{{day}}/solution.py
