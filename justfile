@@ -20,7 +20,7 @@ test day:
     #!/usr/bin/env bash
     set -euo pipefail # Exit on error
     DAY=$(printf "%02d" {{day}})
-    pytest day${DAY}
+    uv run pytest day${DAY}
 
 # activate the virtual environment
 activate-venv:
